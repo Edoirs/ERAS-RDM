@@ -252,35 +252,43 @@ namespace EIRS.Admin.Controllers
             using (_db = new EirsDbContext())
             {
                 lsttempAssHolder = _db.AssessmentRuleRollover.ToList();
-            }
-            if (lsttempAssHolder.Count > 0)
-            {
-                using (_db2 = new EIRSEntities())
+                var allRecords = _db.TempAssHolder.ToList();
+                _db.TempAssHolder.RemoveRange(allRecords);
+
+                if (lsttempAssHolder.Count > 0)
                 {
-                    foreach (var item in lsttempAssHolder)
+                    using (_db2 = new EIRSEntities())
                     {
-                        MAP_AssessmentRule_AssessmentItem mAP_AssessmentRule_AssessmentItem = new MAP_AssessmentRule_AssessmentItem();
-                        mAP_AssessmentRule_AssessmentItem.AssessmentItemID = item.AssessmentItemID;
-                        mAP_AssessmentRule_AssessmentItem.AssessmentRuleID = item.NewAssessmentRuleID;
-                        mAP_AssessmentRule_AssessmentItem.CreatedBy = 1;
-                        mAP_AssessmentRule_AssessmentItem.CreatedDate = DateTime.Now;
+                        foreach (var item in lsttempAssHolder)
+                        {
+                            MAP_AssessmentRule_AssessmentItem mAP_AssessmentRule_AssessmentItem = new MAP_AssessmentRule_AssessmentItem();
+                            mAP_AssessmentRule_AssessmentItem.AssessmentItemID = item.AssessmentItemID;
+                            mAP_AssessmentRule_AssessmentItem.AssessmentRuleID = item.NewAssessmentRuleID;
+                            mAP_AssessmentRule_AssessmentItem.CreatedBy = 1;
+                            mAP_AssessmentRule_AssessmentItem.CreatedDate = DateTime.Now;
 
-                        lstMap.Add(mAP_AssessmentRule_AssessmentItem);
-                    }
+                            lstMap.Add(mAP_AssessmentRule_AssessmentItem);
+                        }
 
-                    _db2.MAP_AssessmentRule_AssessmentItem.AddRange(lstMap);
-                    var ret = _db2.SaveChanges();
-                    if (ret != 0)
-                    {
-                        ViewBag.Res = "Roll-Over Done Successfully";
+                        _db2.MAP_AssessmentRule_AssessmentItem.AddRange(lstMap);
+                        var ret = _db2.SaveChanges();
+
+                        if (ret != 0)
+                        {
+                            _db.AssessmentRuleRollover.RemoveRange(lsttempAssHolder);
+                            _db.SaveChanges();
+
+                            ViewBag.Res = "Roll-Over Done Successfully";
+                            return View();
+                        }
+
+                        ViewBag.Res = "Mapping Not Successfully Done";
                         return View();
                     }
-                    ViewBag.Res = "Mapping Not Successfully Done";
-                    return View();
                 }
+                ViewBag.Res = "No Record Found";
+                return View();
             }
-            ViewBag.Res = "No Record Found";
-            return View();
         }
 
         public ViewResult Index(string sortOrder, string currentFilter, string searchString, int? page)
@@ -454,7 +462,7 @@ namespace EIRS.Admin.Controllers
             ViewData["CurrentSort"] = sortOrder;
             ViewData["NameSortParam"] = String.IsNullOrEmpty(sortOrder) ? "nameDesc" : "";
             ViewData["DateSortParam"] = sortOrder == "date" ? "dateDesc" : "date";
-        
+
             if (searchString != null)
             {
                 page = 1;
@@ -467,7 +475,7 @@ namespace EIRS.Admin.Controllers
             ViewData["CurrentFilter"] = searchString;
 
             List<MDA_Services> MDAServices = new List<MDA_Services>();
-       
+
             if (page.HasValue)
             {
                 MDAServices = SessionManager.lstMDAServices.ToList();
@@ -514,39 +522,53 @@ namespace EIRS.Admin.Controllers
         {
             List<MdaserviceRollover> lsttempMdaHolder = new List<MdaserviceRollover>();
             List<MAP_MDAService_MDAServiceItem> lstMap = new List<MAP_MDAService_MDAServiceItem>();
-            using (_db = new EirsDbContext())
+
+            // Use a single DbContext instance
+            using (var _db = new EirsDbContext())
             {
                 lsttempMdaHolder = _db.MdaserviceRollover.ToList();
-            }
-            if (lsttempMdaHolder.Count > 0)
-            {
-                using (_db2 = new EIRSEntities())
+                var allRecords = _db.TempMdaHolder.ToList();
+                _db.TempMdaHolder.RemoveRange(allRecords);
+                if (lsttempMdaHolder.Count > 0)
                 {
-                    foreach (var item in lsttempMdaHolder)
+                    using (var _db2 = new EIRSEntities())
                     {
-                        MAP_MDAService_MDAServiceItem MapMDAServiceMdaServiceItem = new MAP_MDAService_MDAServiceItem();
-                        MapMDAServiceMdaServiceItem.MDAServiceItemID = item.MdaserviceItemId;
-                        MapMDAServiceMdaServiceItem.MDAServiceID = item.NewMdaserviceId;
-                        MapMDAServiceMdaServiceItem.CreatedBy = 1;
-                        MapMDAServiceMdaServiceItem.CreatedDate = DateTime.Now;
+                        foreach (var item in lsttempMdaHolder)
+                        {
+                            var mapItem = new MAP_MDAService_MDAServiceItem
+                            {
+                                MDAServiceItemID = item.MdaserviceItemId,
+                                MDAServiceID = item.NewMdaserviceId,
+                                CreatedBy = 1,
+                                CreatedDate = DateTime.Now
+                            };
 
-                        lstMap.Add(MapMDAServiceMdaServiceItem);
-                    }
+                            lstMap.Add(mapItem);
+                        }
 
-                    _db2.MAP_MDAService_MDAServiceItem.AddRange(lstMap);
-                    var ret = _db2.SaveChanges();
-                    if (ret != 0)
-                    {
-                        ViewBag.Res = "Roll-Over Done Successfully";
+                        _db2.MAP_MDAService_MDAServiceItem.AddRange(lstMap);
+                        var ret = _db2.SaveChanges();
+
+                        if (ret != 0)
+                        {
+                            // Remove the MdaserviceRollover records
+                            _db.MdaserviceRollover.RemoveRange(lsttempMdaHolder);
+                            _db.SaveChanges();
+
+                            ViewBag.Res = "Roll-Over Done Successfully";
+                            return View();
+                        }
+
+                        ViewBag.Res = "Mapping Not Successfully Done";
                         return View();
                     }
-                    ViewBag.Res = "Mapping Not Successfully Done";
-                    return View();
                 }
+
+                ViewBag.Res = "No Record Found";
+                return View();
             }
-            ViewBag.Res = "No Record Found";
-            return View();
         }
+
 
         public ActionResult AssessmentRulesWithAssessmentItems()
         {
@@ -866,21 +888,21 @@ namespace EIRS.Admin.Controllers
                 var retVal = from m in _db2.MDA_Services
                              join mi in _db2.MAP_MDAService_MDAServiceItem
                                 on m.MDAServiceID equals mi.MDAServiceID into miGroup
-                            from mi in miGroup.DefaultIfEmpty() 
-                            where m.TaxYear == 2024
-                            select new
-                            {
-                                m.MDAServiceID,
-                                m.MDAServiceCode,
-                                m.MDAServiceName,
-                                m.RuleRunID,
-                                m.PaymentFrequencyID,
-                                m.ServiceAmount,
-                                m.TaxYear,
-                                m.PaymentOptionID,
-                                m.Active,
-                                MdaServiceItemId = mi.MDAServiceItemID
-                            };
+                             from mi in miGroup.DefaultIfEmpty()
+                             where m.TaxYear == 2024
+                             select new
+                             {
+                                 m.MDAServiceID,
+                                 m.MDAServiceCode,
+                                 m.MDAServiceName,
+                                 m.RuleRunID,
+                                 m.PaymentFrequencyID,
+                                 m.ServiceAmount,
+                                 m.TaxYear,
+                                 m.PaymentOptionID,
+                                 m.Active,
+                                 MdaServiceItemId = mi.MDAServiceItemID
+                             };
 
 
                 foreach (var item in retVal)
