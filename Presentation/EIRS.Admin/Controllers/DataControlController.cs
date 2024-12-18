@@ -135,12 +135,13 @@ namespace EIRS.Admin.Controllers
                 using (_db = new EirsDbContext())
                 {
                     assessments = GetAssessmentAndRule();
+                    assessments = assessments.DistinctBy(p => new { p.AssessmentRuleCode, p.AssessmentRuleName, p.AssessmentAmount, p.Profileid, p.Taxyear, p.RuleRunId, p.Paymentfrequencyid }).ToList();
                     _db.AssessmentRuleRollover.AddRange(assessments);
                     var ret = _db.SaveChanges();
 
                     if (ret != 0)
                     {
-                        assessments = assessments.DistinctBy(p => new { p.AssessmentRuleCode, p.AssessmentRuleName, p.AssessmentAmount, p.Profileid, p.Taxyear, p.RuleRunId, p.Paymentfrequencyid }).ToList();
+                        //assessments = assessments.DistinctBy(p => new { p.AssessmentRuleCode, p.AssessmentRuleName, p.AssessmentAmount, p.Profileid, p.Taxyear, p.RuleRunId, p.Paymentfrequencyid }).ToList();
                         assessments.Count();
                         var res = AddAssessmentRule(assessments.ToList());
                         if (res.Success)
@@ -409,12 +410,13 @@ namespace EIRS.Admin.Controllers
                 using (_db = new EirsDbContext())
                 {
                     Mdaservice = GetMDAServiceandMDAServiceItem();
+                    Mdaservice = Mdaservice.DistinctBy(p => new { p.MdaserviceCode, p.MdaserviceId, p.MdaserviceItemId, p.MdaserviceName, p.Msmiid, p.TaxYear, p.RuleRunId, p.PaymentFrequencyId }).ToList();
                     _db.MdaserviceRollover.AddRange(Mdaservice);
                     var ret = _db.SaveChanges();
 
                     if (ret != 0)
                     {
-                        Mdaservice = Mdaservice.DistinctBy(p => new { p.MdaserviceCode, p.MdaserviceId, p.MdaserviceItemId, p.MdaserviceName, p.Msmiid, p.TaxYear, p.RuleRunId, p.PaymentFrequencyId }).ToList();
+                      
                         Mdaservice.Count();
                         var res = AddMDAServices(Mdaservice.ToList());
                         if (res.Success)
@@ -500,8 +502,9 @@ namespace EIRS.Admin.Controllers
                         {
                             foreach (var tempMDAHolder in MDAServices)
                             {
-                                string ruleNmae = tempMDAHolder.MDAServiceName;
-                                _db.Database.ExecuteSqlCommand($"Update MdaserviceRollover set NewMdaserviceId = {tempMDAHolder.MDAServiceID} where MdaserviceName  =" + "'" + ruleNmae + "'");
+                                int ruleId = tempMDAHolder.MDAServiceID;
+                                _db.Database.ExecuteSqlCommand($"UPDATE MdaserviceRollover SET MdaserviceCode = '{tempMDAHolder.MDAServiceCode}' WHERE MdaserviceId = {ruleId}");
+
                             }
                         }
                         catch (Exception)
@@ -853,9 +856,9 @@ namespace EIRS.Admin.Controllers
                     andItem.TaxYear = item.taxYear.ToString();
                     andItem.TaxMonth = item.taxMonth.ToString();
                     andItem.Active = item.active.Value;
-                    andItem.TaxAmount = item.taxAmount.Value;
+                    andItem.TaxAmount = item.taxAmount.HasValue ? item.taxAmount.Value : 0; 
                     andItem.Percentage = item.percentage.HasValue ? item.percentage.Value : 0;
-                    andItem.TaxBaseAmount = item.taxBaseAmount.Value;
+                    andItem.TaxBaseAmount = item.taxBaseAmount.HasValue ? item.taxBaseAmount.Value : 0; 
                     andItem.AssessmentItemName = item.assessmentItemName;
                     andItem.AssessmentRuleCode = item.assessmentRuleCode;
                     andItem.AssessmentRuleName = item.assessmentRuleName;
