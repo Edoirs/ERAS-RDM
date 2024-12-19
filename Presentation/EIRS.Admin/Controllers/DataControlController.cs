@@ -135,13 +135,12 @@ namespace EIRS.Admin.Controllers
                 using (_db = new EirsDbContext())
                 {
                     assessments = GetAssessmentAndRule();
-                    assessments = assessments.DistinctBy(p => new { p.AssessmentRuleCode, p.AssessmentRuleName, p.AssessmentAmount, p.Profileid, p.Taxyear, p.RuleRunId, p.Paymentfrequencyid }).ToList();
                     _db.AssessmentRuleRollover.AddRange(assessments);
                     var ret = _db.SaveChanges();
 
                     if (ret != 0)
                     {
-                        //assessments = assessments.DistinctBy(p => new { p.AssessmentRuleCode, p.AssessmentRuleName, p.AssessmentAmount, p.Profileid, p.Taxyear, p.RuleRunId, p.Paymentfrequencyid }).ToList();
+                        assessments = assessments.DistinctBy(p => new { p.AssessmentRuleCode, p.AssessmentRuleName, p.AssessmentAmount, p.Profileid, p.Taxyear, p.RuleRunId, p.Paymentfrequencyid }).ToList();
                         assessments.Count();
                         var res = AddAssessmentRule(assessments.ToList());
                         if (res.Success)
@@ -410,13 +409,12 @@ namespace EIRS.Admin.Controllers
                 using (_db = new EirsDbContext())
                 {
                     Mdaservice = GetMDAServiceandMDAServiceItem();
-                    Mdaservice = Mdaservice.DistinctBy(p => new { p.MdaserviceCode, p.MdaserviceId, p.MdaserviceItemId, p.MdaserviceName, p.Msmiid, p.TaxYear, p.RuleRunId, p.PaymentFrequencyId }).ToList();
                     _db.MdaserviceRollover.AddRange(Mdaservice);
                     var ret = _db.SaveChanges();
 
                     if (ret != 0)
                     {
-                      
+                        Mdaservice = Mdaservice.DistinctBy(p => new { p.MdaserviceCode, p.MdaserviceItemId, p.MdaserviceName, p.TaxYear, p.RuleRunId, p.PaymentFrequencyId }).ToList();
                         Mdaservice.Count();
                         var res = AddMDAServices(Mdaservice.ToList());
                         if (res.Success)
@@ -492,7 +490,7 @@ namespace EIRS.Admin.Controllers
                 year = year + 1;
                 using (_db2 = new EIRSEntities())
                 {
-                    MDAServices = _db2.MDA_Services.Where(o => o.TaxYear == year).Distinct().ToList(); ;
+                    MDAServices = _db2.MDA_Services.Where(o => o.TaxYear == year).ToList(); ;
                 }
                 if (MDAServices.Count != 0)
                 {
@@ -502,8 +500,10 @@ namespace EIRS.Admin.Controllers
                         {
                             foreach (var tempMDAHolder in MDAServices)
                             {
-                                int ruleId = tempMDAHolder.MDAServiceID;
-                                _db.Database.ExecuteSqlCommand($"UPDATE MdaserviceRollover SET MdaserviceCode = '{tempMDAHolder.MDAServiceCode}' WHERE MdaserviceId = {ruleId}");
+                                string ruleNmae = tempMDAHolder.MDAServiceName;
+                                //int ruleId = tempMDAHolder.MDAServiceID;
+                                //_db.Database.ExecuteSqlCommand($"UPDATE MdaserviceRollover SET MdaserviceCode = '{tempMDAHolder.MDAServiceCode}' WHERE Msmiid = {ruleId}");
+                                _db.Database.ExecuteSqlCommand($"Update MdaserviceRollover set NewMdaserviceId = {tempMDAHolder.MDAServiceID} where MdaserviceName  =" + "'" + ruleNmae + "'");
 
                             }
                         }
@@ -943,7 +943,6 @@ namespace EIRS.Admin.Controllers
                                   araiid = a.ARAIID,
                                   assessmentitemID = a.AssessmentItemID
                               })
-                              .Distinct()
                               .ToList();
 
                 foreach (var item in retVal)
@@ -996,7 +995,6 @@ namespace EIRS.Admin.Controllers
                                   m.Active,
                                   MdaServiceItemId = mi.MDAServiceItemID
                               })
-                              .Distinct()
                               .ToList();
                 foreach (var item in retVal)
                 {
