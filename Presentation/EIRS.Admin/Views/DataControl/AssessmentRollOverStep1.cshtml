@@ -7,6 +7,13 @@
     ViewBag.Title = "Assessment Rule RollOver Step 1";
 }
 
+@if (ViewBag.Res != null)
+{
+    <div class="alert alert-info">
+        @ViewBag.Res
+    </div>
+}
+
 
 
 <div class="row">
@@ -30,67 +37,50 @@
     <img src="~/Content/Images/ajax-loader.gif" alt="Loading..." />
 </div>
 
-<table class="table">
-    <tr>
-
-        <th>
-            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleCode)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FirstOrDefault().ProfileID)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleName)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentAmount)
-        </th>
-        <th>
-            @Html.DisplayNameFor(model => model.FirstOrDefault().TaxYear)
-        </th>
-
-        <th></th>
-    </tr>
-
-    @foreach (var item in 
-    Model)
-    {
+@if (Model != null && Model.Any())
+{
+    <table class="table">
         <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.AssessmentRuleID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AssessmentRuleCode)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.ProfileID)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.AssessmentRuleName)
-            </td>
-
-            <td>
-                @Html.DisplayFor(modelItem => item.AssessmentAmount)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.TaxYear)
-            </td>
-
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleID)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleCode)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().ProfileID)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleName)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentAmount)</th>
+            <th>@Html.DisplayNameFor(model => model.FirstOrDefault().TaxYear)</th>
+            <th></th>
         </tr>
-    }
 
-</table>
-<br />
-Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+        @foreach (var item in Model)
+        {
+            <tr>
+                <td>@(item?.AssessmentRuleID != 0 ? item.AssessmentRuleID.ToString() : "N/A")</td>
+                <td>@(item?.AssessmentRuleCode ?? "N/A")</td>
+                <td>@(item?.ProfileID != 0 ? item.ProfileID.ToString() : "N/A")</td>
+                <td>@(item?.AssessmentRuleName ?? "N/A")</td>
+                <td>@(item?.AssessmentAmount?.ToString("C") ?? "N/A")</td>
+                <td>@(item?.TaxYear != 0 ? item.TaxYear.ToString() : "N/A")</td>
+            </tr>
+        }
+    </table>
 
-@Html.PagedListPager(Model, page => Url.Action("AssessmentRollOverStep1",
-    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+    <br />
+
+    <p>
+        Page @(Model.PageCount > 0 && Model.PageNumber > 0 ? Model.PageNumber : 0)
+        of @(Model.PageCount > 0 ? Model.PageCount : 0)
+    </p>
+
+    @Html.PagedListPager(Model, page => Url.Action("AssessmentRollOverStep1",
+        new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+}
+else
+{
+    <p>No records available.</p>
+}
+
 
 <script>
-     // Function to display the loader
+    // Function to display the loader
     function showLoader() {
         document.getElementById("loader").style.display = "block";
     }

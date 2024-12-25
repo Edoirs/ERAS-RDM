@@ -132,51 +132,65 @@ namespace EIRS.Admin.Controllers
             }
             else
             {
-                using (_db = new EirsDbContext())
+                using (_db2 = new EIRSEntities())
                 {
-                    assessments = GetAssessmentAndRule();
-                    _db.AssessmentRuleRollover.AddRange(assessments);
-                    var ret = _db.SaveChanges();
+                    year = year + 1;
+                    var checker = _db2.Assessment_Rules.Where(x => x.TaxYear == year).ToList();
 
-                    if (ret != 0)
+                    if (checker.Any())
                     {
-                        assessments = assessments.DistinctBy(p => new { p.AssessmentRuleCode, p.AssessmentRuleName, p.AssessmentAmount, p.Profileid, p.Taxyear, p.RuleRunId, p.Paymentfrequencyid }).ToList();
-                        assessments.Count();
-                        var res = AddAssessmentRule(assessments.ToList());
-                        if (res.Success)
+                        ViewBag.Res = $"Assessment Already Exists For The Year {year}.";
+                        return View();
+                    }
+                    else
+                    {
+                        using (_db = new EirsDbContext())
                         {
-                            using (_db = new EirsDbContext())
+                            assessments = GetAssessmentAndRule();
+                            _db.AssessmentRuleRollover.AddRange(assessments);
+                            var ret = _db.SaveChanges();
+
+                            if (ret != 0)
                             {
-                                foreach (var ret2 in res.AdditionalData.ToList())
+                                assessments = assessments.DistinctBy(p => new { p.AssessmentRuleCode, p.AssessmentRuleName, p.AssessmentAmount, p.Profileid, p.Taxyear, p.RuleRunId, p.Paymentfrequencyid }).ToList();
+                                assessments.Count();
+                                var res = AddAssessmentRule(assessments.ToList());
+                                if (res.Success)
                                 {
-                                    TempAssHolder tempAssHolder = new TempAssHolder();
-                                    tempAssHolder.AssessmentRuleCode = ret2.AssessmentRuleCode;
-                                    tempAssHolder.AssessmentRuleId = ret2.AssessmentRuleID;
-
-                                    lsttempAssHolder.Add(tempAssHolder);
-                                    //_db.TempAssHolder.Add(tempAssHolder);
-                                }
-                                try
-                                {
-                                    SessionManager.lstTempAssHolder = lsttempAssHolder;
-                                    //_db.SaveChanges();
-                                    foreach (var tempAssHolder in lsttempAssHolder)
+                                    using (_db = new EirsDbContext())
                                     {
-                                        _db.Database.ExecuteSqlCommand($"Update Assessment_Rules set AssessmentRuleCode = {tempAssHolder.AssessmentRuleCode} where AssessmentRuleID = {tempAssHolder.AssessmentRuleId}");
+                                        foreach (var ret2 in res.AdditionalData.ToList())
+                                        {
+                                            TempAssHolder tempAssHolder = new TempAssHolder();
+                                            tempAssHolder.AssessmentRuleCode = ret2.AssessmentRuleCode;
+                                            tempAssHolder.AssessmentRuleId = ret2.AssessmentRuleID;
 
+                                            lsttempAssHolder.Add(tempAssHolder);
+                                            //_db.TempAssHolder.Add(tempAssHolder);
+                                        }
+                                        try
+                                        {
+                                            SessionManager.lstTempAssHolder = lsttempAssHolder;
+                                            //_db.SaveChanges();
+                                            foreach (var tempAssHolder in lsttempAssHolder)
+                                            {
+                                                _db.Database.ExecuteSqlCommand($"Update Assessment_Rules set AssessmentRuleCode = {tempAssHolder.AssessmentRuleCode} where AssessmentRuleID = {tempAssHolder.AssessmentRuleId}");
+
+                                            }
+
+                                        }
+                                        catch (Exception)
+                                        {
+                                            throw;
+                                        }
                                     }
-
-                                }
-                                catch (Exception)
-                                {
-                                    throw;
+                                    int pageSize = 20;
+                                    int pageNumber = (page ?? 1);
+                                    SessionManager.lstAssesRule = res.AdditionalData;
+                                    var retVal = res.AdditionalData.ToPagedList(pageNumber, pageSize);
+                                    return View(retVal);
                                 }
                             }
-                            int pageSize = 20;
-                            int pageNumber = (page ?? 1);
-                            SessionManager.lstAssesRule = res.AdditionalData;
-                            var retVal = res.AdditionalData.ToPagedList(pageNumber, pageSize);
-                            return View(retVal);
                         }
                     }
                 }
@@ -406,7 +420,19 @@ namespace EIRS.Admin.Controllers
             }
             else
             {
-                using (_db = new EirsDbContext())
+                using (_db2 = new EIRSEntities())
+                {
+                    year = year + 1;
+                    var checker = _db2.MDA_Services.Where(x => x.TaxYear == year).ToList();
+
+                    if (checker.Any())
+                    {
+                        ViewBag.Res = $"Mda Service Already Exists For The Year {year}.";
+                        return View();
+                    }
+                    else
+                    { 
+                        using (_db = new EirsDbContext())
                 {
                     Mdaservice = GetMDAServiceandMDAServiceItem();
                     _db.MdaserviceRollover.AddRange(Mdaservice);
@@ -452,6 +478,8 @@ namespace EIRS.Admin.Controllers
                             var retVal = res.AdditionalData.ToPagedList(pageNumber, pageSize);
                             return View(retVal);
                         }
+                    }
+                }
                     }
                 }
             }
@@ -856,9 +884,9 @@ namespace EIRS.Admin.Controllers
                     andItem.TaxYear = item.taxYear.ToString();
                     andItem.TaxMonth = item.taxMonth.ToString();
                     andItem.Active = item.active.Value;
-                    andItem.TaxAmount = item.taxAmount.HasValue ? item.taxAmount.Value : 0; 
+                    andItem.TaxAmount = item.taxAmount.HasValue ? item.taxAmount.Value : 0;
                     andItem.Percentage = item.percentage.HasValue ? item.percentage.Value : 0;
-                    andItem.TaxBaseAmount = item.taxBaseAmount.HasValue ? item.taxBaseAmount.Value : 0; 
+                    andItem.TaxBaseAmount = item.taxBaseAmount.HasValue ? item.taxBaseAmount.Value : 0;
                     andItem.AssessmentItemName = item.assessmentItemName;
                     andItem.AssessmentRuleCode = item.assessmentRuleCode;
                     andItem.AssessmentRuleName = item.assessmentRuleName;

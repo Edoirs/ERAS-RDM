@@ -9,6 +9,8 @@
     var succeedingYear = currentYear + 1;
 }
 
+<h2>@ViewBag.Res</h2>
+
 <div class="row">
     <div class="col-xs-12 col-sm-7">
         <h1 class="page-title txt-color-blueDark">
@@ -28,14 +30,14 @@
 
 <div id="loader" style="display:none; text-align:center; margin-top:20px;">
     <img src="~/Content/Images/ajax-loader.gif" alt="Loading..." />
-   </div>
+</div>
 
 @using (Html.BeginForm("Index", "DataControl", FormMethod.Get, new { id = "searchForm" }))
 {
-<p>
-    Find by Assessment Rule Code: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
-    <input type="submit" value="Search" />
-</p>
+    <p>
+        Find by Assessment Rule Code: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        <input type="submit" value="Search" />
+    </p>
 }
 
 <table class="table">
@@ -51,15 +53,15 @@
 
     @foreach (var item in Model)
     {
-    <tr>
-        <td>@Html.DisplayFor(modelItem => item.TaxYear)</td>
-        <td>@Html.DisplayFor(modelItem => item.TaxAmount)</td>
-        <td>@Html.DisplayFor(modelItem => item.AssessmentItemName)</td>
-        <td>@Html.DisplayFor(modelItem => item.AssessmentRuleId)</td>
-        <td>@Html.DisplayFor(modelItem => item.AssessmentRuleCode)</td>
-        <td>@Html.DisplayFor(modelItem => item.AssessmentRuleName)</td>
-        <td>@Html.DisplayFor(modelItem => item.AssessmentAmount)</td>
-    </tr>
+        <tr>
+            <td>@Html.DisplayFor(modelItem => item.TaxYear)</td>
+            <td>@Html.DisplayFor(modelItem => item.TaxAmount)</td>
+            <td>@Html.DisplayFor(modelItem => item.AssessmentItemName)</td>
+            <td>@Html.DisplayFor(modelItem => item.AssessmentRuleId)</td>
+            <td>@Html.DisplayFor(modelItem => item.AssessmentRuleCode)</td>
+            <td>@Html.DisplayFor(modelItem => item.AssessmentRuleName)</td>
+            <td>@Html.DisplayFor(modelItem => item.AssessmentAmount)</td>
+        </tr>
     }
 </table>
 <br />

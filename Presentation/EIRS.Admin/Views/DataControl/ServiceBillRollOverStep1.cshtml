@@ -8,6 +8,12 @@
 }
 
 <h2>Service Bill Roll Over Step 1</h2>
+@if (ViewBag.Res != null)
+{
+    <div class="alert alert-info">
+        @ViewBag.Res
+    </div>
+}
 
 <div class="row">
     <div class="col-xs-12 col-sm-7">
@@ -52,25 +58,30 @@
         @foreach (var item in Model)
         {
             <tr>
-                 <td>@Html.DisplayFor(modelItem => item.MDAServiceCode)</td>
-                <td>@Html.DisplayFor(modelItem => item.MDAServiceName)</td>
-                <td>@Html.DisplayFor(modelItem => item.RuleRunID)</td>
-                <td>@Html.DisplayFor(modelItem => item.ServiceAmount)</td>
-                <td>@Html.DisplayFor(modelItem => item.TaxYear)</td>
+                <td>@(item?.MDAServiceCode ?? "N/A")</td>
+                <td>@(item?.MDAServiceName ?? "N/A")</td>
+                <td>@(item?.RuleRunID ?? 0)</td>
+                <td>@(item?.ServiceAmount?.ToString("C") ?? "N/A")</td>
+                <td>@(item?.TaxYear != 0 ? item.TaxYear.ToString() : "N/A")</td>
             </tr>
         }
     </table>
+
+    <br />
+
+    <p>
+        Page @(Model.PageCount > 0 && Model.PageNumber > 0 ? Model.PageNumber : 0)
+        of @(Model.PageCount > 0 ? Model.PageCount : 0)
+    </p>
+
+    @Html.PagedListPager(Model, page => Url.Action("ServiceBillRollOverStep1",
+        new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
 }
 else
 {
     <p>No records found.</p>
 }
 
-<br />
-Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
-
-@Html.PagedListPager(Model, page => Url.Action("ServiceBillRollOverStep1",
-    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
 
 <script>
     // Function to display the loader
