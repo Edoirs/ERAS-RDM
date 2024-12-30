@@ -7,38 +7,39 @@
     ViewBag.Title = "Assessment Rule RollOver Step 1";
 }
 
-@if (ViewBag.Res != null)
-{
-    <div class="alert alert-info">
-        @ViewBag.Res
-    </div>
-}
+@*@if (ViewBag.Res != null)
+    {
+        <div class="alert alert-info">
+            @ViewBag.Res
+        </div>
+    }*@
 
 
 
-<div class="row">
-    <div class="col-xs-12 col-sm-7">
-        <h1 class="page-title txt-color-blueDark">
-            <i class="fa fa-lg fa-fw fa-life-saver"></i>
-            Continue Roll-Over
-        </h1>
-    </div>
-    <div class="col-xs-12 col-sm-5 text-right">
-        <a href="@Url.Action("AssessmentRollOverStep2","DataControl")"
-           class="btn btn-info"
-           id="processRollOverButton"
-           onclick="return showLoader();">
-            Continue RollOver
-        </a>
-    </div>
-</div>
-
-<div id="loader" style="display:none; text-align:center; margin-top:20px;">
-    <img src="~/Content/Images/ajax-loader.gif" alt="Loading..." />
-</div>
 
 @if (Model != null && Model.Any())
 {
+    <div class="row">
+        <div class="col-xs-12 col-sm-7">
+            <h1 class="page-title txt-color-blueDark">
+                <i class="fa fa-lg fa-fw fa-life-saver"></i>
+                Continue Roll-Over
+            </h1>
+        </div>
+        <div class="col-xs-12 col-sm-5 text-right">
+            <a href="@Url.Action("AssessmentRollOverStep2","DataControl")"
+               class="btn btn-info"
+               id="processRollOverButton"
+               onclick="return showLoader();">
+                Continue RollOver
+            </a>
+        </div>
+    </div>
+
+    <div id="loader" style="display:none; text-align:center; margin-top:20px;">
+        <img src="~/Content/Images/ajax-loader.gif" alt="Loading..." />
+    </div>
+
     <table class="table">
         <tr>
             <th>@Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleID)</th>
@@ -75,13 +76,54 @@
 }
 else
 {
-    <p>No records available.</p>
+<div class="center-screen">
+    <p>Assessment Already Exists For The Year</p>
+
+    <div class="alert alert-info alert-box">
+        @ViewBag.Res
+    </div>
+
+    <div class="center-button">
+        <a href="@Url.Action("index", "DataControl")"
+           class="btn btn-info"
+           id="processRollOverButton"
+           onclick="return showLoader();">
+            Back
+        </a>
+    </div>
+</div>
 }
 
+<style>
+    .center-screen {
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        height: 100vh; /* Full screen height */
+        text-align: center;
+    }
+
+    .alert-box {
+        width: 300px; /* Set a fixed width for the alert box */
+        height: 300px; /* Set a fixed height for the alert box */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        border-radius: 10px; /* Optional: round corners */
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Optional: add shadow */
+    }
+
+    .center-button {
+        margin-top: 20px;
+    }
+</style>
 
 <script>
     // Function to display the loader
     function showLoader() {
         document.getElementById("loader").style.display = "block";
     }
+
 </script>
