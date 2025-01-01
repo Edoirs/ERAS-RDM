@@ -952,7 +952,7 @@ namespace EIRS.Admin.Controllers
             {
                 List<AssessmentRuleRollover> assessmentAndItems = new List<AssessmentRuleRollover>();
                 var presentYear = DateTime.Now.Year;
-                presentYear = presentYear + 1;
+                //presentYear = presentYear + 1;
                 var retVal = (from r in _db2.Assessment_Rules
                               join a in _db2.MAP_AssessmentRule_AssessmentItem
                               on r.AssessmentRuleID equals a.AssessmentRuleID
@@ -1004,7 +1004,7 @@ namespace EIRS.Admin.Controllers
             {
                 List<MdaserviceRollover> MADServiceAndItems = new List<MdaserviceRollover>();
                 var presentYear = DateTime.Now.Year;
-                var newYear = presentYear + 1;
+                var newYear = presentYear ;
                 var retVal = (from m in _db2.MDA_Services
                               join mi in _db2.MAP_MDAService_MDAServiceItem
                                   on m.MDAServiceID equals mi.MDAServiceID into miGroup
