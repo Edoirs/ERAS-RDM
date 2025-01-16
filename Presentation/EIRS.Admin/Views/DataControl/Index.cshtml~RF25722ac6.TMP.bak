@@ -1,0 +1,138 @@
+﻿@using PagedList;
+@using PagedList.Mvc;
+@model IPagedList<EIRS.Admin.Models.AssessmentAndItemRollOver>
+<link href="~/Content/PagedList.css" rel="stylesheet" type="text/css" />
+
+
+@{
+    ViewBag.Title = "Index";
+    var currentYear = DateTime.Now.Year;
+    var succeedingYear = currentYear + 1;
+}
+
+@*<h2>Index</h2>*@
+<div class="row">
+    <div class="col-xs-12 col-sm-7">
+        <h1 class="page-title txt-color-blueDark">
+            <i class="fa fa-lg fa-fw fa-life-saver"></i>
+            Start Roll-Over
+        </h1>
+    </div>
+    <div class="col-xs-12 col-sm-5 text-right">
+        <a href="@Url.Action("AssessmentRollOverStep1","DataControl")"
+           class="btn btn-info"
+           id="processRollOverButton"
+           onclick="return confirmRollOver(@currentYear, @succeedingYear);">
+            Process RollOver
+        </a>
+    </div>
+</div>
+@using (Html.BeginForm("Index", "DataControl", FormMethod.Get))
+{
+    <p>
+        Find by Assessment Rule Code: @Html.TextBox("SearchString", ViewBag.CurrentFilter as string)
+        <input type="submit" value="Search" />
+    </p>
+}
+<table class="table">
+    <tr>
+
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().TaxYear)
+        </th>
+
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().TaxAmount)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentItemName)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleId)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleCode)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentRuleName)
+        </th>
+        @*<th>
+                @Html.ActionLink("AssessmentItemName", "Index", new { sortOrder = ViewBag.NameSortParm })
+            </th>*@
+        <th>
+            @Html.DisplayNameFor(model => model.FirstOrDefault().AssessmentAmount)
+        </th>
+
+    </tr>
+
+    @foreach (var item in Model)
+    {
+        <tr>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.TaxYear)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.TaxAmount)
+            </td>
+
+            <td>
+                @Html.DisplayFor(modelItem => item.AssessmentItemName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AssessmentRuleId)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AssessmentRuleCode)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AssessmentRuleName)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.AssessmentAmount)
+            </td>
+
+        </tr>
+    }
+
+</table>
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+                new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+
+<div id="loader" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 9999;">
+    <img src="~/Content/Images/ajax-loader.gif" alt="Loading..." />
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script>
+    function startRollOverProcess(currentYear, succeedingYear) {
+        var message = `Do you wish to roll over '${currentYear}' (current year) to '${succeedingYear}' (succeeding year)?`;
+        if (confirm(message)) {
+            // Show the loader
+            $('#loader').show();
+
+            // Perform the AJAX request
+            $.ajax({
+                url: '@Url.Action("AssessmentRollOverStep1", "DataControl")', // URL for the controller action
+                type: 'GET', // Or 'POST' if needed
+                success: function(response) {
+                    // Hide the loader once the operation is complete
+                    $('#loader').hide();
+
+                    // Optionally, you can redirect or update the page with the result
+                    alert("Roll-over process completed successfully.");
+                },
+                error: function() {
+                    // Hide the loader in case of an error
+                    $('#loader').hide();
+                    alert("An error occurred while processing the roll-over.");
+                }
+            });
+        }
+    }
+</script>

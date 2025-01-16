@@ -227,7 +227,7 @@ namespace EIRS.Admin.Controllers
             else
             {
                 int year = DateTime.Now.Year;
-                year = year + 1;
+                //year = year + 1;
                 using (_db2 = new EIRSEntities())
                 {
                     assessment_Rules = _db2.Assessment_Rules.Where(o => o.TaxYear == year).ToList(); ;
@@ -422,7 +422,7 @@ namespace EIRS.Admin.Controllers
             {
                 using (_db2 = new EIRSEntities())
                 {
-                    year = year + 1;
+                    //year = year + 1;
                     var checker = _db2.MDA_Services.Where(x => x.TaxYear == year).ToList();
 
                     if (checker.Any())
@@ -515,7 +515,7 @@ namespace EIRS.Admin.Controllers
             else
             {
                 int year = DateTime.Now.Year;
-                year = year + 1;
+                //year = year + 1;
                 using (_db2 = new EIRSEntities())
                 {
                     MDAServices = _db2.MDA_Services.Where(o => o.TaxYear == year).ToList(); ;
@@ -861,11 +861,11 @@ namespace EIRS.Admin.Controllers
                               on r.AssessmentRuleID equals a.AssessmentRuleID
                               join b in _db2.Assessment_Items
                               on a.AssessmentItemID equals b.AssessmentItemID
-                              where r.TaxYear == presentYear
+                              where r.TaxYear == 2024
                               select new
                               {
                                   active = r.Active,
-                                  taxYear = newYear,
+                                  taxYear = 2024,
                                   taxMonth = r.TaxMonth,
                                   percentage = b.Percentage,
                                   taxBaseAmount = b.TaxBaseAmount,
@@ -915,11 +915,11 @@ namespace EIRS.Admin.Controllers
                               join b in _db2.MDA_Service_Items
                               on a.MDAServiceItemID equals b.MDAServiceItemID into serviceItemsDetailsGroup
                               from b in serviceItemsDetailsGroup.DefaultIfEmpty() // Left join with MDA_Service_Items
-                              where r.TaxYear == presentYear
+                              where r.TaxYear == 2024
                               select new
                               {
                                   active = r.Active,
-                                  taxYear = newYear,
+                                  taxYear = 2024,
                                   percentage = b != null ? b.Percentage : (decimal?)null,
                                   serviceBaseAmount = b != null ? b.ServiceBaseAmount : (decimal?)null,
                                   mDAServiceCode = r.MDAServiceCode,
